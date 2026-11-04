@@ -1,0 +1,47 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "libmatheval",
+  "name": "GNU libmatheval (stdin driver)",
+  "version": "1.1.11",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/libmatheval/libmatheval-1.1.11.tar.gz",
+    "sha256": "474852d6715ddc3b6969e28de5e1a5fbaff9e8ece6aebb9dc1cc63e9e88e89ab",
+    "directory": "libmatheval-1.1.11"
+  },
+  "build": {
+    "configure": [
+      "--disable-nls",
+      "--disable-shared",
+      "--enable-static"
+    ],
+    "notes": "Library-only build (make -C lib) followed by a compile-and-link of a small stdin driver (test.c, a third-party build input kept in environment/third_party/concollmic with its licence) with the coverage flags into obj-gcov/program. GCC records the generated parser and scanner sources under obj-gcov/lib; build.stage_sources lists the copies that put them there, which the builder makes after the build and the runner repeats. environment/README.md names the driver file and its pinned SHA-256.",
+    "stage_sources": [
+      {
+        "source": "lib/parser.c",
+        "recorded_path": "obj-gcov/lib/parser.c"
+      },
+      {
+        "source": "lib/parser.y",
+        "recorded_path": "obj-gcov/lib/parser.y"
+      },
+      {
+        "source": "lib/scanner.c",
+        "recorded_path": "obj-gcov/lib/scanner.c"
+      },
+      {
+        "source": "lib/scanner.l",
+        "recorded_path": "obj-gcov/lib/scanner.l"
+      }
+    ]
+  },
+  "binary": "obj-gcov/program",
+  "branch_total": 591,
+  "fixed_track": {
+    "argv_template": [],
+    "input_channel": "stdin"
+  },
+  "inputs": [
+    "stdin"
+  ],
+  "status": "measured"
+}

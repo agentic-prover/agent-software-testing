@@ -1,0 +1,3 @@
+# The third-party build inputs under environment/third_party have their own licences; the source distribution
+# (and the wheel, which is built from src/ only) stays Apache-2.0 and leaves them out.
+prune environment/third_party

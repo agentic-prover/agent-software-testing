@@ -1,0 +1,48 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "jq",
+  "name": "jq",
+  "version": "1.8.2",
+  "source": {
+    "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-1.8.2.tar.gz",
+    "sha256": "71b8d6e8f5fe81f6c6d0d110e3892251f6ce76ed095abd315e26e6e1193af3af",
+    "directory": "jq-1.8.2"
+  },
+  "build": {
+    "configure": [
+      "--with-oniguruma=builtin",
+      "--disable-docs",
+      "--disable-shared",
+      "--enable-static"
+    ],
+    "notes": "Out-of-tree build with the bundled oniguruma and static libraries. A single-process pthread shim (compat/jq-single-process.c in this directory) is compiled without coverage flags and linked through LIBS; it runs jq's worker threads sequentially. GCC records the generated lexer and parser sources (lexer.c, lexer.l, parser.c, parser.y) under obj-gcov/src, where they do not exist; build.stage_sources lists the copies that put them there, which the builder makes after the build and the runner repeats, so that the initial lcov capture prints no warning.",
+    "stage_sources": [
+      {
+        "source": "src/lexer.c",
+        "recorded_path": "obj-gcov/src/lexer.c"
+      },
+      {
+        "source": "src/lexer.l",
+        "recorded_path": "obj-gcov/src/lexer.l"
+      },
+      {
+        "source": "src/parser.c",
+        "recorded_path": "obj-gcov/src/parser.c"
+      },
+      {
+        "source": "src/parser.y",
+        "recorded_path": "obj-gcov/src/parser.y"
+      }
+    ]
+  },
+  "binary": "obj-gcov/jq",
+  "branch_total": 18280,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

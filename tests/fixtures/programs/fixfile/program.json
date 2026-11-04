@@ -1,0 +1,17 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "fixfile",
+  "name": "FixFile",
+  "version": "1.0",
+  "source": {
+    "url": "https://example.invalid/fixfile-1.0.tar.gz",
+    "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "directory": "fixfile-1.0"
+  },
+  "build": {"configure": [], "notes": ""},
+  "binary": "bin/fixfile",
+  "branch_total": 100,
+  "fixed_track": {"argv_template": ["test", "{input}"], "input_channel": "file"},
+  "inputs": ["argv", "files"],
+  "status": "measured"
+}

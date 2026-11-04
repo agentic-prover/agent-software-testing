@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-software-testing"
+version = "0.1.0"
+description = "Replay every test generator's test cases on one pinned gcov build per program and report branch coverage the same way for all tools."
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "The Agent Software Testing authors" }]
+keywords = ["coverage", "replay", "fuzzing", "symbolic execution", "gcov"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+agent-software-testing = "agent_software_testing.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+addopts = "-ra"
+markers = [
+    "toolchain: needs gcc, gcov and lcov (skipped when they are missing)",
+]

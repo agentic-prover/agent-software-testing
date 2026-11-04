@@ -1,0 +1,43 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "bc",
+  "name": "GNU bc",
+  "version": "1.08.2",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/bc/bc-1.08.2.tar.gz",
+    "sha256": "ae470fec429775653e042015edc928d07c8c3b2fc59765172a330d3d87785f86",
+    "directory": "bc-1.08.2"
+  },
+  "build": {
+    "configure": [],
+    "notes": "Out-of-tree build in obj-gcov. make runs the lib and bc targets with one job (the build is not parallel-safe) and MAKEINFO=true to skip the manual. GCC records the generated scanner and parser sources (bc.c, bc.y, scan.c, scan.l) under obj-gcov/bc, where they do not exist; build.stage_sources lists the copies that put them there, which the builder makes after the build and the runner repeats, so that the initial lcov capture prints no warning.",
+    "stage_sources": [
+      {
+        "source": "bc/bc.c",
+        "recorded_path": "obj-gcov/bc/bc.c"
+      },
+      {
+        "source": "bc/bc.y",
+        "recorded_path": "obj-gcov/bc/bc.y"
+      },
+      {
+        "source": "bc/scan.c",
+        "recorded_path": "obj-gcov/bc/scan.c"
+      },
+      {
+        "source": "bc/scan.l",
+        "recorded_path": "obj-gcov/bc/scan.l"
+      }
+    ]
+  },
+  "binary": "obj-gcov/bc/bc",
+  "branch_total": 1922,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

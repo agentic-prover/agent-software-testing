@@ -1,0 +1,27 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "confetti",
+  "name": "Confetti (parse example)",
+  "version": "1.0.0-beta.4",
+  "source": {
+    "url": "https://github.com/hgs3/confetti/releases/download/v1.0.0-beta.4/confetti-1.0.0-beta.4.tar.gz",
+    "sha256": "acdfdac1875cf2036f2cad57b15b0a17b3b0b2dd5ae2c606d1a37a720b0da589",
+    "directory": "confetti-1.0.0-beta.4"
+  },
+  "build": {
+    "configure": [
+      "--disable-shared"
+    ],
+    "notes": "Out-of-tree build with a static library (--disable-shared) so that the parse example links the parser implementation directly. If the archive ships no configure script the builder runs autoreconf -fvi first."
+  },
+  "binary": "obj-gcov/parse",
+  "branch_total": 632,
+  "fixed_track": {
+    "argv_template": [],
+    "input_channel": "stdin"
+  },
+  "inputs": [
+    "stdin"
+  ],
+  "status": "measured"
+}

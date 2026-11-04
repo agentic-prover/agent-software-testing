@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-software-testing/tool@0.1",
+  "title": "Bundle metadata (tool.json)",
+  "type": "object",
+  "required": ["schema", "tool", "program", "track", "repeat", "budget"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "agent-software-testing/tool@0.1" },
+    "tool": {
+      "type": "object",
+      "required": ["name", "family"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "version": { "type": ["string", "null"] },
+        "family": { "enum": ["symbolic", "fuzzer", "hybrid", "llm", "agent", "other"] },
+        "model": { "type": ["string", "null"] },
+        "config_sha256": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] },
+        "url": { "type": ["string", "null"] }
+      }
+    },
+    "program": {
+      "type": "object",
+      "required": ["id", "source_sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+        "source_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "track": { "enum": ["fixed", "open"] },
+    "repeat": { "type": "integer", "minimum": 1 },
+    "budget": {
+      "type": "object",
+      "required": ["wall_s"],
+      "additionalProperties": false,
+      "properties": {
+        "wall_s": { "type": "integer", "minimum": 1, "maximum": 604800 },
+        "cores": { "type": "integer", "minimum": 1 },
+        "notes": { "type": "string" }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "output_tokens": { "type": ["integer", "null"], "minimum": 0 },
+        "input_tokens": { "type": ["integer", "null"], "minimum": 0 },
+        "cpu_s": { "type": ["number", "null"], "minimum": 0 }
+      }
+    },
+    "notes": { "type": "string" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

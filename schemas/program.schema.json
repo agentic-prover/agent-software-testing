@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-software-testing/program@0.1",
+  "title": "Program definition (programs/<id>/program.json)",
+  "description": "Unknown keys are allowed (a program may carry notes or build details). Checked by the validator and not expressible here: binary must be a relative path without '..'; an input_channel of 'file' needs {input} in argv_template and 'stdin' must not use it.",
+  "type": "object",
+  "required": ["schema", "id", "name", "version", "source", "build", "binary", "branch_total", "fixed_track", "inputs", "status"],
+  "properties": {
+    "schema": { "const": "agent-software-testing/program@0.1" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+    "name": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "required": ["url", "sha256", "directory"],
+      "properties": {
+        "url": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "directory": { "type": "string", "minLength": 1 }
+      }
+    },
+    "build": {
+      "type": "object",
+      "required": ["configure"],
+      "properties": {
+        "configure": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "string" },
+        "exclusion_markers": { "enum": ["honored", "ignored"] },
+        "stage_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source", "recorded_path"],
+            "properties": {
+              "source": { "type": "string" },
+              "recorded_path": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "binary": { "type": "string", "minLength": 1 },
+    "branch_total": { "type": "integer", "minimum": 1 },
+    "fixed_track": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["argv_template", "input_channel"],
+          "properties": {
+            "argv_template": { "type": "array", "items": { "type": "string" } },
+            "input_channel": { "enum": ["file", "stdin"] }
+          }
+        }
+      ]
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["argv", "files", "stdin", "env"] }
+    },
+    "status": { "type": "string", "minLength": 1 }
+  }
+}

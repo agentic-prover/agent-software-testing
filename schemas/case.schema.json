@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-software-testing/case@0.1",
+  "title": "A test case (one line of cases.jsonl)",
+  "description": "Structure of one case. Rules that need decoded values are checked by the validator and not expressible here: path rules (no absolute path, no '..', no NUL, at most 64 components of at most 255 bytes, at most 1,024 bytes), decoded argv size (at most 128 KiB in all, 131,071 bytes per argument), environment strings (NAME=value at most 131,071 bytes, argv and env together at most 1 MiB with terminators), blob existence, size (at most 4 MiB), hash and the 16 MiB case total, unique ids across the bundle, t_ms order and budget, duplicate and conflicting paths, symlink targets that stay inside the case root, a cwd the process can enter, and the fixed-track template.",
+  "type": "object",
+  "required": ["id", "t_ms", "argv"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+    "t_ms": { "type": "integer", "minimum": 0, "description": "Milliseconds since the campaign started." },
+    "argv": {
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/base64" },
+      "description": "Base64 of each argument, argv[0] excluded (the runner sets it)."
+    },
+    "stdin": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/blobRef" }],
+      "default": null
+    },
+    "stdin_tty": {
+      "type": "boolean",
+      "default": false,
+      "description": "Standard input is a pseudo-terminal fed with the stdin blob (requires stdin to be a blob)."
+    },
+    "stdin_pipe": {
+      "type": "boolean",
+      "default": false,
+      "description": "Standard input is an anonymous pipe that delivers the stdin blob and then ends (requires stdin to be a blob; not with stdin_tty, stdin_atime or stdin_mtime)."
+    },
+    "stdin_atime": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807,
+      "description": "Access time of the standard input file, seconds since the Unix epoch (requires stdin to be a blob that is a file, so not with stdin_tty or stdin_pipe)."
+    },
+    "stdin_mtime": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807,
+      "description": "Modification time of the standard input file, seconds since the Unix epoch (same rules as stdin_atime)."
+    },
+    "files": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/fileEntry" },
+      "default": []
+    },
+    "env": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+        "not": { "pattern": "^(PATH|HOME|TMPDIR|GLIBC_TUNABLES|GCONV_PATH|LOCPATH|NLSPATH|MSAN_OPTIONS|TSAN_OPTIONS)$|^(GCOV_|ASAN_|UBSAN_|LSAN_|LD_|MALLOC_|AGENT_SOFTWARE_TESTING_)" }
+      },
+      "additionalProperties": { "$ref": "#/$defs/base64" },
+      "default": {}
+    },
+    "cwd": { "$ref": "#/$defs/base64", "default": "Lg==" },
+    "timeout_ms": { "type": "integer", "minimum": 1, "maximum": 30000, "default": 30000 },
+    "origin": { "type": ["string", "null"], "maxLength": 64 }
+  },
+  "$defs": {
+    "base64": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+    },
+    "blobRef": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "mode": { "type": "string", "pattern": "^0?[0-7]{3}$" },
+    "fileEntry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["path", "kind", "blob"],
+          "additionalProperties": false,
+          "properties": {
+            "path": { "$ref": "#/$defs/base64" },
+            "kind": { "const": "file" },
+            "mode": { "$ref": "#/$defs/mode", "default": "0644" },
+            "blob": { "$ref": "#/$defs/blobRef" },
+            "atime": { "type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807 },
+            "mtime": { "type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807 }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["path", "kind", "blob"],
+          "additionalProperties": false,
+          "properties": {
+            "path": { "$ref": "#/$defs/base64" },
+            "kind": { "const": "fifo" },
+            "mode": { "$ref": "#/$defs/mode", "default": "0644" },
+            "blob": { "$ref": "#/$defs/blobRef" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["path", "kind", "blob"],
+          "additionalProperties": false,
+          "properties": {
+            "path": { "$ref": "#/$defs/base64" },
+            "kind": { "const": "tty" },
+            "blob": { "$ref": "#/$defs/blobRef" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["path", "kind"],
+          "additionalProperties": false,
+          "properties": {
+            "path": { "$ref": "#/$defs/base64" },
+            "kind": { "const": "dir" },
+            "mode": { "$ref": "#/$defs/mode", "default": "0755" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["path", "kind", "target"],
+          "additionalProperties": false,
+          "properties": {
+            "path": { "$ref": "#/$defs/base64" },
+            "kind": { "const": "symlink" },
+            "target": { "$ref": "#/$defs/base64" }
+          }
+        }
+      ]
+    }
+  }
+}

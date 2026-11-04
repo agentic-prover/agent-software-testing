@@ -1,0 +1,117 @@
+name: Program proposal
+description: Propose a new program for the suite.
+title: "Program: "
+labels: ["program-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read `docs/PROPOSING-A-PROGRAM.md` first: it lists what fits the suite and the acceptance checklist. A program
+        is a long-term commitment, so a proposal with evidence for the checklist is decided faster. Do not include
+        details of unfixed defects of the program (`DISCLOSURE.md` in `agent-software-testing-results`).
+  - type: input
+    id: program
+    attributes:
+      label: Program and version
+      description: Name and the upstream version string, written as upstream writes it.
+      placeholder: "GNU tar 1.35"
+    validations:
+      required: true
+  - type: input
+    id: homepage
+    attributes:
+      label: Project home page
+      placeholder: "https://example.org/project"
+    validations:
+      required: true
+  - type: input
+    id: archive-url
+    attributes:
+      label: Release archive URL
+      description: An HTTPS address of the source archive (or of the archive of a pinned revision).
+    validations:
+      required: true
+  - type: input
+    id: archive-sha256
+    attributes:
+      label: SHA-256 of the archive
+      description: 64 hexadecimal digits, computed by you from the file you downloaded.
+    validations:
+      required: true
+  - type: input
+    id: licence
+    attributes:
+      label: Licence
+      description: An OSI-approved licence, as an SPDX identifier.
+      placeholder: "GPL-3.0-or-later"
+    validations:
+      required: true
+  - type: checkboxes
+    id: surfaces
+    attributes:
+      label: Input surfaces
+      description: What does the program read that a test case can set? Tick all that apply.
+      options:
+        - label: Command-line arguments
+        - label: Files in the working directory
+        - label: Standard input
+        - label: Environment variables
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this program
+      description: What does it add to the 18 programs we have (domain, input surfaces, size)? Who uses it?
+    validations:
+      required: true
+  - type: textarea
+    id: build
+    attributes:
+      label: Build recipe
+      description: |
+        Configure arguments, build steps, libraries needed from Ubuntu 22.04, generated sources, and any patch or driver
+        (who wrote it, under which licence). Say how long the build takes and how large the build tree is.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: fixed-track
+    attributes:
+      label: Fixed-track invocation (optional)
+      description: |
+        An argument list with `{input}` for the input file, or a note that the input arrives on standard input, and where
+        this invocation comes from (the project's own tests, a fuzz harness, a published evaluation). Leave empty if
+        there is none; the program is then open-track only.
+  - type: textarea
+    id: seeds
+    attributes:
+      label: Seeds (optional)
+      description: Test cases the project ships (test suite, corpus) that tools may start from, and their licence.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence for the acceptance checklist
+      description: |
+        For each item of the checklist in `docs/PROPOSING-A-PROGRAM.md`: how you checked it and the result, for example the
+        branch total of two independent builds, the output of the flake check on a sample corpus, and how you confirmed
+        that nothing is written outside the case directory. Say what you could not check.
+  - type: dropdown
+    id: help
+    attributes:
+      label: Can you prepare the definition?
+      options:
+        - Yes, I can prepare the program definition, recipe and tests
+        - I can help test, but someone else should write it
+        - No, I am only proposing the program
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: The program needs no network, display, daemon or database to run its test cases.
+          required: true
+        - label: I searched the existing issues and proposals.
+          required: true
+        - label: This proposal contains no details of unfixed defects of the program.
+          required: true

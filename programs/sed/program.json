@@ -1,0 +1,30 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "sed",
+  "name": "GNU sed",
+  "version": "4.10",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/sed/sed-4.10.tar.xz",
+    "sha256": "b8e72182b2ec96a3574e2998c47b7aaa64cc20ce000d8e9ac313cc07cecf28c7",
+    "directory": "sed-4.10"
+  },
+  "build": {
+    "configure": [
+      "--disable-nls",
+      "--disable-acl",
+      "--disable-xattr",
+      "--without-selinux"
+    ],
+    "notes": "Out-of-tree build with native language support, ACL, extended-attribute and SELinux integrations disabled."
+  },
+  "binary": "obj-gcov/sed/sed",
+  "branch_total": 6958,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

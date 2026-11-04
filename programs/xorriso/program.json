@@ -1,0 +1,34 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "xorriso",
+  "name": "GNU xorriso",
+  "version": "1.5.8.pl02",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/xorriso/xorriso-1.5.8.pl02.tar.gz",
+    "sha256": "b1455ecafbf0692ddafe1d71002a96f2ce2d77f4deae602678261ce033f97bc8",
+    "directory": "xorriso-1.5.8"
+  },
+  "build": {
+    "configure": [
+      "--disable-libreadline",
+      "--disable-libedit",
+      "--disable-libacl",
+      "--disable-xattr",
+      "--disable-zlib",
+      "--disable-jtethreads",
+      "--disable-libbz2",
+      "--disable-external-filters"
+    ],
+    "notes": "Out-of-tree build with readline, editline, ACL, extended-attribute, zlib, bzip2, libjte threads and external filters disabled."
+  },
+  "binary": "obj-gcov/xorriso/xorriso",
+  "branch_total": 54607,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

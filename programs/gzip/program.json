@@ -1,0 +1,25 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "gzip",
+  "name": "GNU gzip",
+  "version": "1.14",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/gzip/gzip-1.14.tar.xz",
+    "sha256": "01a7b881bd220bfdf615f97b8718f80bdfd3f6add385b993dcf6efd14e8c0ac6",
+    "directory": "gzip-1.14"
+  },
+  "build": {
+    "configure": [],
+    "notes": "Out-of-tree build with the portable CRC implementation selected (gl_cv_crc_pclmul=no) so that results do not depend on host CPU extensions."
+  },
+  "binary": "obj-gcov/gzip",
+  "branch_total": 3083,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

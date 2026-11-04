@@ -1,0 +1,99 @@
+name: Bug report
+description: The runner, validator, adapters, program definitions, build scripts or documentation do something wrong.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Before you continue:
+
+        * A way for a test case to escape the sandbox, reach the network or write outside its case directory is a
+          **security problem**. Do not report it here; use the private report described in `SECURITY.md`.
+        * A crash or sanitiser finding in one of the **18 programs** (gzip, jq, ...) is a defect of that program. Do not
+          post it here; see `DISCLOSURE.md` in the `agent-software-testing-results` repository.
+        * A wrong number in a published results release goes to the `agent-software-testing-results` repository (Data issue).
+        * Please do not paste personal data, user or host names, or absolute paths of your machine.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part is affected?
+      options:
+        - Reference runner (replay)
+        - Validator
+        - Adapter (ktest)
+        - Adapter (afl)
+        - Sanitiser pass (signatures)
+        - Environment and build scripts
+        - Program definition
+        - Schemas
+        - Specification or documentation
+        - Other or not sure
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The output of `python -m agent_software_testing --version` and the commit or tag you are on.
+      placeholder: "agent-software-testing 0.1.0, commit abc1234"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Operating system, Python version, and whether you ran inside the container of `environment/Dockerfile`
+        (image tag or digest, and how the container was started: network, read-only root, limits).
+        For replays: `gcc --version | head -n 1`, `gcov --version | head -n 1` and `lcov --version`.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you see? Quote the error message in full.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: What should have happened, and where (SPEC section, documentation, or reasoning) does that come from?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The commands, in order, from a clean checkout. A small bundle that shows the problem is best.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: bundle
+    attributes:
+      label: Bundle or input, if any
+      description: |
+        A link to a minimal bundle (an archive and its SHA-256), or the relevant lines of `tool.json` and `cases.jsonl`.
+        Do not share inputs that trigger an unfixed defect of one of the programs.
+  - type: textarea
+    id: output
+    attributes:
+      label: Output or log
+      description: Relevant output, `replay.json` fields or validator report. Remove paths and names that identify you.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and did not find this one.
+          required: true
+        - label: This is not a security problem and not a defect of one of the programs (those are reported privately).
+          required: true
+        - label: The report contains no personal data, host or user names, or local paths.
+          required: true

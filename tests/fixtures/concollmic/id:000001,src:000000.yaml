@@ -1,0 +1,50 @@
+id: 1
+src_id: 0
+create_time: '2026-01-02 03:04:07.500'
+time_taken: 2
+states:
+  - SELECT
+  - SUMMARIZE
+  - SOLVE
+is_target_covered: false
+new_coverage: true
+newly_covered_lines: 3
+is_satisfiable: true
+is_crash: false
+is_hang: false
+usage: |
+  TOTAL: {}
+target_branch: 'the branch `if (n > 0)` is TRUE
+  in main, line 12'
+target_file_lines: prog.c:12-12
+target_lines_content: |2-
+      return 1;
+justification: "A quoted
+  explanation with a tab (\t) and a quote (\")."
+target_path_constraint: |-
+  Goal: reach line 12.
+selected_cnt: 0
+successful_generation_cnt: 0
+exec_code: |-
+  def execute_program(timeout: int) -> tuple[str, int]:
+      import subprocess
+
+      input_str = "1 + 2\n"
+      env = {"MODE": "strict"}
+      result = subprocess.run(
+          ["./prog", "-v", "--level=3"],
+          input=input_str,
+          capture_output=True,
+          encoding="utf-8",
+          timeout=timeout,
+          env={"MODE": "strict"},
+      )
+      return result.stderr, result.returncode
+returncode: 0
+src_execution_summary: |2+
+
+  The previous run.
+src_exec_code: |
+  def execute_program(timeout: int) -> tuple[str, int]:
+      return "", 0
+src_execution_trace:

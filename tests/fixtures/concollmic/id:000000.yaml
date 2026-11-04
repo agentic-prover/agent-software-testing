@@ -1,0 +1,56 @@
+id: 0
+src_id:
+create_time: '2026-01-02 03:04:05.250'
+time_taken: 0
+states:
+  - FINISHED
+is_target_covered: true
+new_coverage: true
+newly_covered_lines: 12
+is_satisfiable: false
+is_crash: false
+is_hang: false
+usage: |
+  TOTAL: {}
+target_branch:
+target_file_lines:
+target_lines_content:
+justification:
+target_path_constraint:
+selected_cnt: 3
+successful_generation_cnt: 3
+exec_code: |
+  def execute_program(timeout: int) -> tuple[str, int]:
+      import signal
+      import subprocess
+      import tempfile
+
+      file_data = "alpha\nbeta\n"
+      with tempfile.NamedTemporaryFile(mode="w") as temp_file:
+          temp_file.write(file_data)
+          temp_file.flush()
+          try:
+              result = subprocess.run(
+                  ["./prog", "test", temp_file.name],
+                  capture_output=True,
+                  encoding="utf-8",
+                  errors="replace",
+                  timeout=timeout,
+              )
+              return result.stderr, result.returncode
+          except subprocess.TimeoutExpired as e:
+              return e.stderr, -signal.SIGKILL
+returncode:
+src_execution_summary:
+crash_info:
+execution_trace: |2
+
+  [prog.c] enter main 1
+  [prog.c] enter main 2
+execution_summary: |2+
+
+  ```c
+  // prog.c (3 lines total)
+  ```
+src_exec_code:
+src_execution_trace:

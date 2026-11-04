@@ -1,0 +1,28 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "grep",
+  "name": "GNU grep",
+  "version": "3.12",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/grep/grep-3.12.tar.xz",
+    "sha256": "2649b27c0e90e632eadcd757be06c6e9a4f48d941de51e7c0f83ff76408a07b9",
+    "directory": "grep-3.12"
+  },
+  "build": {
+    "configure": [
+      "--disable-nls",
+      "--disable-perl-regexp"
+    ],
+    "notes": "Out-of-tree build with native language support and PCRE2 (Perl expressions) disabled."
+  },
+  "binary": "obj-gcov/src/grep",
+  "branch_total": 4806,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

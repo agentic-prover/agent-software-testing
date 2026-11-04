@@ -1,0 +1,29 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "krep",
+  "name": "Krep",
+  "version": "1.2",
+  "source": {
+    "url": "https://github.com/davidesantangelo/krep/archive/9c4d41ce92f4e9ef6dc786eaf0e5be488153c4b4.tar.gz",
+    "sha256": "18298b91d2edd24f0e2e56a703c3fb372d218bfa63038b689f4b084bd8b1a87e",
+    "directory": "krep-9c4d41ce92f4e9ef6dc786eaf0e5be488153c4b4"
+  },
+  "build": {
+    "configure": [],
+    "notes": "Make-only build with no configure step, compiled out of tree with 'make -f ../Makefile VPATH=..'. Two source patches (Makefile.diff, krep.diff) remove host-vector and thread-pool behaviour and run partitions sequentially. They are third-party build inputs kept in environment/third_party/concollmic with their licences; environment/README.md names the files and their pinned SHA-256 values. The patched Makefile appends -O1 after the -O0 of the environment."
+  },
+  "binary": "obj-gcov/krep",
+  "branch_total": 1231,
+  "fixed_track": {
+    "argv_template": [
+      "test",
+      "{input}"
+    ],
+    "input_channel": "file"
+  },
+  "inputs": [
+    "argv",
+    "files"
+  ],
+  "status": "measured"
+}

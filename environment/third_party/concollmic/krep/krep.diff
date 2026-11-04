@@ -1,0 +1,468 @@
+diff --git a/krep.c b/krep.c
+index 9a320bb..37a4cea 100644
+--- a/krep.c
++++ b/krep.c
+@@ -24,7 +24,6 @@
+ #include <unistd.h>
+ #include <sys/stat.h>
+ #include <sys/mman.h> // Include for mmap, madvise constants
+-#include <pthread.h>
+ #include <inttypes.h> // For PRIu64 macro
+ #include <errno.h>
+ #include <limits.h>    // For SIZE_MAX, PATH_MAX
+@@ -97,15 +96,6 @@ static atomic_bool global_match_found_flag = false; // Used in recursive search
+ // Global lookup table for fast lowercasing
+ unsigned char lower_table[256]; // Remove static
+
+-// Initialize the lower_table at program start
+-static void __attribute__((constructor)) init_lower_table(void)
+-{
+-    for (int i = 0; i < 256; i++)
+-    {
+-        lower_table[i] = tolower(i);
+-    }
+-}
+-
+ // --- Match Result Management ---
+
+ // Initialize match result structure
+@@ -2087,32 +2077,6 @@ cleanup:
+     return result_code;
+ }
+
+-// Global thread pool
+-static thread_pool_t *global_thread_pool = NULL;
+-
+-// Initialize the global thread pool with auto-detected core count
+-static void init_global_thread_pool(int requested_thread_count)
+-{
+-    if (global_thread_pool == NULL)
+-    {
+-        global_thread_pool = thread_pool_init(requested_thread_count);
+-        if (!global_thread_pool)
+-        {
+-            fprintf(stderr, "Failed to initialize thread pool. Using single-threaded mode.\n");
+-        }
+-    }
+-}
+-
+-// Clean up the global thread pool
+-static void KREP_UNUSED cleanup_global_thread_pool()
+-{
+-    if (global_thread_pool)
+-    {
+-        thread_pool_destroy(global_thread_pool);
+-        global_thread_pool = NULL;
+-    }
+-}
+-
+ int search_file(const search_params_t *params, const char *filename, int requested_thread_count)
+ {
+     search_params_t current_params = *params;
+@@ -2124,7 +2088,6 @@ int search_file(const search_params_t *params, const char *filename, int request
+     size_t file_size = 0;                        // File size
+     char *file_data = MAP_FAILED;                // Mapped file data
+     match_result_t *global_matches = NULL;       // Global result collection
+-    pthread_t *threads = NULL;                   // Thread handles
+     thread_data_t *thread_args = NULL;           // Thread arguments
+     regex_t compiled_regex_local;                // For local regex compilation
+     char *combined_regex_pattern = NULL;         // For combined regex patterns
+@@ -2175,7 +2138,8 @@ int search_file(const search_params_t *params, const char *filename, int request
+         // Read stdin in chunks
+         size_t read_chunk_size = 65536; // 64KB chunks
+         size_t bytes_read;
+-        while ((bytes_read = fread(buffer + used_size, 1, read_chunk_size, stdin)) > 0)
++        int fd = fileno(stdin);
++        while ((bytes_read = read(fd, buffer + used_size, read_chunk_size)) > 0)
+         {
+             used_size += bytes_read;
+             // Expand buffer if needed
+@@ -2528,12 +2492,9 @@ int search_file(const search_params_t *params, const char *filename, int request
+         actual_thread_count = 1;
+
+     // --- Initialize Threading Resources ---
+-    threads = malloc(actual_thread_count * sizeof(pthread_t));
+     thread_args = malloc(actual_thread_count * sizeof(thread_data_t));
+-    if (threads)
+-        memset(threads, 0, actual_thread_count * sizeof(pthread_t));
+
+-    if (!threads || !thread_args)
++    if (!thread_args)
+     {
+         perror("krep: Cannot allocate thread resources");
+         result_code = 2;
+@@ -2602,8 +2563,6 @@ int search_file(const search_params_t *params, const char *filename, int request
+             optimal_threads = 1;
+     }
+
+-    // Initialize the global thread pool if needed
+-    init_global_thread_pool(optimal_threads);
+
+     for (int i = 0; i < actual_thread_count; ++i)
+     {
+@@ -2637,63 +2596,19 @@ int search_file(const search_params_t *params, const char *filename, int request
+         if (effective_chunk_len > 0)
+         {
+             // Use search_chunk_thread which handles multiple patterns via Aho-Corasick or Regex
+-            if (global_thread_pool)
+-            {
+-                if (!thread_pool_submit(global_thread_pool, search_chunk_thread, &thread_args[i]))
+-                {
+-                    fprintf(stderr, "krep: Failed to submit task for thread %d\n", i);
+-                    // Handle error: maybe reduce thread count or abort
+-                    thread_args[i].error_flag = true; // Mark thread data as errored
+-                }
+-            }
+-            else
+-            {
+-                int rc = pthread_create(&threads[i], NULL, search_chunk_thread, &thread_args[i]);
+-                if (rc)
+-                {
+-                    fprintf(stderr, "krep: Error creating thread %d: %s\n", i, strerror(rc));
+-                    // Handle error: maybe reduce thread count or abort
+-                    threads[i] = 0;                   // Mark as not created
+-                    thread_args[i].error_flag = true; // Mark thread data as errored
+-                    continue;                         // Try launching fewer threads
+-                }
+-            }
++
++            search_chunk_thread(&thread_args[i]);
++
+             threads_launched++;
+         }
+-        else
+-        {
+-            threads[i] = 0; // Mark as not launched
+-        }
+         current_pos += this_chunk_len; // Advance by non-overlapped length
+     }
+     actual_thread_count = threads_launched;
+
+-    // Wait for all tasks to complete
+-    if (global_thread_pool)
+-    {
+-        thread_pool_wait_all(global_thread_pool);
+-    }
+-
+     // --- Wait for Threads and Aggregate Results ---
+     bool merge_error = false;
+     for (int i = 0; i < actual_thread_count; ++i)
+     {
+-        // Skip the pthread_join logic if using thread pool (tasks are already complete)
+-        // Only try to join if not using thread pool and thread was actually created
+-        if (!global_thread_pool && threads[i] != 0)
+-        {
+-            int rc = pthread_join(threads[i], NULL);
+-            if (rc)
+-            {
+-                fprintf(stderr, "krep: Error joining thread %d: %s\n", i, strerror(rc));
+-                result_code = 2;
+-            }
+-        }
+-
+-        if (thread_args[i].error_flag)
+-        {
+-            result_code = 2;
+-        }
+
+         // Always process results from thread_args, regardless of how the thread was executed
+         if (result_code != 2 && !merge_error)
+@@ -2795,7 +2710,6 @@ cleanup_file:
+         regfree(&compiled_regex_local);
+     free(combined_regex_pattern);
+     match_result_free(global_matches);
+-    free(threads);
+     free(thread_args);
+     if (fd != -1)
+         close(fd);
+@@ -2874,7 +2788,8 @@ static bool is_binary_file(const char *filepath)
+
+     char buffer[BINARY_CHECK_BUFFER_SIZE];
+     // Read a chunk from the beginning of the file
+-    size_t bytes_read = fread(buffer, 1, sizeof(buffer), f);
++    int fd = fileno(f);
++    size_t bytes_read = read(fd, buffer, sizeof(buffer));
+     fclose(f);
+
+     if (bytes_read == 0)
+@@ -2999,6 +2914,12 @@ int search_directory_recursive(const char *base_dir, const search_params_t *para
+ #if !defined(TESTING)
+ int main(int argc, char *argv[])
+ {
++
++    for (int i = 0; i < 256; i++)
++    {
++        lower_table[i] = tolower(i);
++    }
++
+     // --- Argument Parsing State ---
+     search_params_t params = {0}; // Initialize search parameters
+     params.case_sensitive = true; // Default
+@@ -3293,8 +3214,6 @@ int main(int argc, char *argv[])
+
+     // If counting (-c) or printing only matches (-o), disable summary
+
+-    // Initialize thread pool early with the requested thread count
+-    init_global_thread_pool(thread_count);
+
+     // --- Execute Search ---
+     int exit_code = 1; // Default exit code: 1 (no match found)
+@@ -3344,8 +3263,6 @@ int main(int argc, char *argv[])
+         exit_code = search_file(&params, target_arg, thread_count);
+     }
+
+-    // Clean up thread pool before exiting
+-    cleanup_global_thread_pool();
+
+     // Cleanup before exit - free any memory allocated for patterns read from file
+     if (num_patterns_found > 0)
+@@ -3512,249 +3429,6 @@ uint64_t memchr_search(const search_params_t *params,
+     return current_count; // Return line count or match count
+ }
+
+-// --- Thread Pool Implementation ---
+-
+-// Worker thread function that processes tasks from the queue
+-static void *thread_pool_worker(void *arg)
+-{
+-    thread_pool_t *pool = (thread_pool_t *)arg;
+-    task_t *task;
+-
+-    while (true)
+-    {
+-        // Lock the queue mutex to safely access the task queue
+-        pthread_mutex_lock(&pool->queue_mutex);
+-
+-        // Wait for a task or shutdown signal
+-        while (pool->task_queue == NULL && !atomic_load(&pool->shutdown))
+-        {
+-            pthread_cond_wait(&pool->queue_cond, &pool->queue_mutex);
+-        }
+-
+-        // Check if we should shutdown
+-        if (atomic_load(&pool->shutdown) && pool->task_queue == NULL)
+-        {
+-            pthread_mutex_unlock(&pool->queue_mutex);
+-            break;
+-        }
+-
+-        // Get a task from the queue
+-        task = pool->task_queue;
+-        pool->task_queue = task->next;
+-        if (pool->task_queue == NULL)
+-        {
+-            pool->task_queue_tail = NULL;
+-        }
+-
+-        // Increment the working threads counter
+-        pool->working_threads++;
+-
+-        // Unlock the queue to allow other threads to get tasks
+-        pthread_mutex_unlock(&pool->queue_mutex);
+-
+-        // Execute the task
+-        if (task != NULL)
+-        {
+-            task->func(task->arg);
+-            free(task);
+-        }
+-
+-        // Mark thread as no longer working and signal if all work is done
+-        pthread_mutex_lock(&pool->queue_mutex);
+-        pool->working_threads--;
+-        if (pool->working_threads == 0 && pool->task_queue == NULL)
+-        {
+-            pthread_cond_signal(&pool->complete_cond);
+-        }
+-        pthread_mutex_unlock(&pool->queue_mutex);
+-    }
+-
+-    return NULL;
+-}
+-
+-// Initialize a thread pool with the specified number of worker threads
+-thread_pool_t *thread_pool_init(int num_threads)
+-{
+-    if (num_threads <= 0)
+-    {
+-        // Auto-detect core count if not specified
+-        num_threads = sysconf(_SC_NPROCESSORS_ONLN);
+-        if (num_threads <= 0)
+-        {
+-            num_threads = 4; // Fallback to a reasonable default
+-        }
+-    }
+-
+-    thread_pool_t *pool = malloc(sizeof(thread_pool_t));
+-    if (!pool)
+-    {
+-        return NULL;
+-    }
+-
+-    // Initialize pool structure
+-    pool->threads = malloc(num_threads * sizeof(pthread_t));
+-    if (!pool->threads)
+-    {
+-        free(pool);
+-        return NULL;
+-    }
+-
+-    pool->num_threads = num_threads;
+-    pool->task_queue = NULL;
+-    pool->task_queue_tail = NULL;
+-    pool->working_threads = 0;
+-    atomic_init(&pool->shutdown, false);
+-
+-    if (pthread_mutex_init(&pool->queue_mutex, NULL) != 0)
+-    {
+-        free(pool->threads);
+-        free(pool);
+-        return NULL;
+-    }
+-
+-    if (pthread_cond_init(&pool->queue_cond, NULL) != 0)
+-    {
+-        pthread_mutex_destroy(&pool->queue_mutex);
+-        free(pool->threads);
+-        free(pool);
+-        return NULL;
+-    }
+-
+-    if (pthread_cond_init(&pool->complete_cond, NULL) != 0)
+-    {
+-        pthread_cond_destroy(&pool->queue_cond);
+-        pthread_mutex_destroy(&pool->queue_mutex);
+-        free(pool->threads);
+-        free(pool);
+-        return NULL;
+-    }
+-
+-    // Create worker threads
+-    for (int i = 0; i < num_threads; i++)
+-    {
+-        if (pthread_create(&pool->threads[i], NULL, thread_pool_worker, pool) != 0)
+-        {
+-            // Handle failure - stop and clean up
+-            atomic_store(&pool->shutdown, true);
+-            pthread_cond_broadcast(&pool->queue_cond);
+-
+-            // Wait for any started threads and clean up
+-            for (int j = 0; j < i; j++)
+-            {
+-                pthread_join(pool->threads[j], NULL);
+-            }
+-
+-            pthread_cond_destroy(&pool->complete_cond);
+-            pthread_cond_destroy(&pool->queue_cond);
+-            pthread_mutex_destroy(&pool->queue_mutex);
+-            free(pool->threads);
+-            free(pool);
+-            return NULL;
+-        }
+-    }
+-
+-    return pool;
+-}
+-
+-// Submit a task to the thread pool
+-bool thread_pool_submit(thread_pool_t *pool, void *(*func)(void *), void *arg)
+-{
+-    if (!pool || !func || atomic_load(&pool->shutdown))
+-    {
+-        return false;
+-    }
+-
+-    // Create a new task
+-    task_t *task = malloc(sizeof(task_t));
+-    if (!task)
+-    {
+-        return false;
+-    }
+-
+-    task->func = func;
+-    task->arg = arg;
+-    task->next = NULL;
+-
+-    // Add task to queue
+-    pthread_mutex_lock(&pool->queue_mutex);
+-
+-    if (pool->task_queue == NULL)
+-    {
+-        // Queue was empty
+-        pool->task_queue = task;
+-        pool->task_queue_tail = task;
+-    }
+-    else
+-    {
+-        // Append to end of queue
+-        pool->task_queue_tail->next = task;
+-        pool->task_queue_tail = task;
+-    }
+-
+-    // Signal that work is available
+-    pthread_cond_signal(&pool->queue_cond);
+-    pthread_mutex_unlock(&pool->queue_mutex);
+-
+-    return true;
+-}
+-
+-// Wait for all tasks to complete
+-void thread_pool_wait_all(thread_pool_t *pool)
+-{
+-    if (!pool)
+-    {
+-        return;
+-    }
+-
+-    pthread_mutex_lock(&pool->queue_mutex);
+-
+-    // Wait until the task queue is empty and all threads are idle
+-    while (pool->task_queue != NULL || pool->working_threads > 0)
+-    {
+-        pthread_cond_wait(&pool->complete_cond, &pool->queue_mutex);
+-    }
+-
+-    pthread_mutex_unlock(&pool->queue_mutex);
+-}
+-
+-// Destroy the thread pool
+-void thread_pool_destroy(thread_pool_t *pool)
+-{
+-    if (!pool)
+-    {
+-        return;
+-    }
+-
+-    // Set the shutdown flag to true
+-    atomic_store(&pool->shutdown, true);
+-
+-    // Wake up all worker threads
+-    pthread_mutex_lock(&pool->queue_mutex);
+-    pthread_cond_broadcast(&pool->queue_cond);
+-    pthread_mutex_unlock(&pool->queue_mutex);
+-
+-    // Wait for all threads to finish
+-    for (int i = 0; i < pool->num_threads; i++)
+-    {
+-        pthread_join(pool->threads[i], NULL);
+-    }
+-
+-    // Clean up any remaining tasks (should be none if wait_all was called)
+-    task_t *task = pool->task_queue;
+-    while (task != NULL)
+-    {
+-        task_t *next = task->next;
+-        free(task);
+-        task = next;
+-    }
+-
+-    // Clean up resources
+-    pthread_cond_destroy(&pool->complete_cond);
+-    pthread_cond_destroy(&pool->queue_cond);
+-    pthread_mutex_destroy(&pool->queue_mutex);
+-    free(pool->threads);
+-    free(pool);
+-}
+
+ // --- memchr-based search for short patterns (2-3 chars) ---
+ uint64_t memchr_short_search(const search_params_t *params,

@@ -1,0 +1,28 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "gcal",
+  "name": "GNU Gcal",
+  "version": "4.2.0",
+  "source": {
+    "url": "https://www.alteholz.dev/gnu/gcal-4.2.0.tar.xz",
+    "sha256": "d8bd2d7411e78251d67064aa0f1ca60a523bf856ee3e6d89d07d85a1233478dc",
+    "directory": "gcal-4.2.0"
+  },
+  "build": {
+    "configure": [
+      "--disable-nls",
+      "--disable-term"
+    ],
+    "notes": "Out-of-tree build. The release's test-framework probe is bypassed by presetting CHECK_CFLAGS and CHECK_LIBS (the preset define is inert; no source refers to it); only the lib and src make targets are built."
+  },
+  "binary": "obj-gcov/src/gcal",
+  "branch_total": 15632,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

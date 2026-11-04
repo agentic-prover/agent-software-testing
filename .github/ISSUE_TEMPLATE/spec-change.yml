@@ -1,0 +1,84 @@
+name: Specification change (RFC)
+description: Propose a change to SPEC.md, a schema, a data format or the replay protocol.
+title: "RFC: "
+labels: ["rfc"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A replay is a measurement, so even a small change can change published numbers. Please propose changes here
+        before writing code (see "Proposing a change to the specification" in `CONTRIBUTING.md` and `GOVERNANCE.md`).
+        Editorial fixes (typos, clarifications that change no behaviour) can be sent as a pull request without an RFC.
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One sentence.
+    validations:
+      required: true
+  - type: input
+    id: sections
+    attributes:
+      label: Sections affected
+      description: The sections of `SPEC.md` (and the schemas, if any) that would change.
+      placeholder: "SPEC 5.6 (limits), schemas/case.schema.json"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What cannot be done, or is measured wrongly, today? Give an example, ideally with a program and a bundle.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The proposal
+      description: The exact change. Quote the new wording of the specification where you can.
+    validations:
+      required: true
+  - type: dropdown
+    id: effect
+    attributes:
+      label: Effect on the measurement
+      description: In the terms of SPEC section 10. Choose the strongest that applies.
+      options:
+        - Editorial (no change of behaviour)
+        - Clarification (the text now says what implementations already do)
+        - Compatible addition (valid bundles stay valid, numbers do not change)
+        - Makes a valid bundle invalid
+        - Changes a branch key or the universe of a program
+        - Changes a measured number
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and migration
+      description: |
+        What happens to existing bundles and results releases? Does anything have to be re-measured? May results measured
+        before and after the change be compared?
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Changes needed elsewhere
+      description: The validator, runner, adapters, schemas, program definitions, examples, tests and documentation that must change with it.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including doing nothing, and why you prefer this proposal.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I read the RFC section of CONTRIBUTING.md and understand that a change that affects what is measured stays open for comment before a decision.
+          required: true
+        - label: I searched the existing issues and RFCs.
+          required: true
+        - label: The proposal contains no details of unfixed defects in the programs.
+          required: true

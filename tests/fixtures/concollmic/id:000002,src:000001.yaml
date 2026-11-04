@@ -1,0 +1,20 @@
+id: 2
+src_id: 1
+create_time: '2026-01-02 03:04:09.000'
+time_taken: 4
+states:
+  - SELECT
+  - SUMMARIZE
+  - SOLVE
+is_target_covered: false
+new_coverage: false
+newly_covered_lines: 0
+is_satisfiable: false
+is_crash: false
+is_hang: false
+usage: |
+  TOTAL: {}
+selected_cnt: 0
+successful_generation_cnt: 0
+exec_code:
+returncode:

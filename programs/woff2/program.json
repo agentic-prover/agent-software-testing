@@ -1,0 +1,27 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "woff2",
+  "name": "woff2_decompress (WOFF2)",
+  "version": "1.0.2",
+  "source": {
+    "url": "https://github.com/google/woff2/archive/0f4d304faa1c62994536dc73510305c7357da8d4.tar.gz",
+    "sha256": "5bca353b359f7ea4a0c0171d5249368e154a2246d59265c4dd1aeda7db309286",
+    "directory": "woff2-0f4d304faa1c62994536dc73510305c7357da8d4"
+  },
+  "build": {
+    "configure": [],
+    "notes": "In-tree build: the pinned WOFF2 source is extracted into obj-gcov and the pinned Brotli source (commit 533843e3546c) into obj-gcov/brotli; the build is plain 'make all'."
+  },
+  "binary": "obj-gcov/woff2_decompress",
+  "branch_total": 11412,
+  "fixed_track": {
+    "argv_template": [
+      "{input}"
+    ],
+    "input_channel": "file"
+  },
+  "inputs": [
+    "files"
+  ],
+  "status": "measured"
+}

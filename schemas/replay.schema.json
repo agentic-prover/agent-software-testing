@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-software-testing/replay@0.1",
+  "title": "Replay summary (replay.json)",
+  "type": "object",
+  "required": [
+    "schema", "program", "tool", "track", "repeat", "bundle", "budget_s", "interval_s",
+    "branch_total", "branch_covered", "cases", "status_counts", "snapshots", "flake", "runner"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "agent-software-testing/replay@0.1" },
+    "program": {
+      "type": "object",
+      "required": ["id", "source_sha256"],
+      "properties": {
+        "id": { "type": "string" },
+        "source_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "tool": { "type": "object", "description": "Copy of tool.json's 'tool' object." },
+    "track": { "enum": ["fixed", "open"] },
+    "repeat": { "type": "integer", "minimum": 1 },
+    "bundle": {
+      "type": "object",
+      "required": ["tool_json_sha256", "cases_jsonl_sha256"],
+      "properties": {
+        "tool_json_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "cases_jsonl_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "build": {
+      "type": "object",
+      "description": "Identifies the program definition and the coverage build the replay used.",
+      "required": ["program_json_sha256", "binary_sha256", "gcno_set_sha256"],
+      "properties": {
+        "program_json_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "binary_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "gcno_set_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "profile": { "enum": ["standard", "canonical-2026"] },
+    "stray_killed": { "type": "integer", "minimum": 0 },
+    "timeouts": {
+      "type": "object",
+      "description": "Cases of the first replay that hit their time limit, and how many of them had used less than half of it as CPU time (the node was busy or the case waited). Not reproducible (SPEC section 7.4).",
+      "required": ["clock", "count", "cpu_measured", "under_load", "under_load_case_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "clock": { "enum": ["wall", "cpu"], "description": "What the time limit measured." },
+        "count": { "type": "integer", "minimum": 0, "description": "Equals status_counts.timeout." },
+        "cpu_measured": { "type": "integer", "minimum": 0, "description": "Timeouts whose CPU time could be measured." },
+        "under_load": { "type": "integer", "minimum": 0, "description": "Of those, the timeouts that used less than half of their limit as CPU time." },
+        "under_load_case_ids": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "type": "string" },
+          "description": "Ids of the first 100 of them, in the order of the corpus."
+        }
+      }
+    },
+    "budget_s": { "type": "integer", "minimum": 1, "maximum": 604800 },
+    "interval_s": { "type": "integer", "minimum": 1 },
+    "branch_total": { "type": "integer", "minimum": 1 },
+    "branch_covered": { "type": "integer", "minimum": 0 },
+    "cases": {
+      "type": "object",
+      "required": ["total", "replayed", "skipped_beyond_budget"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "replayed": { "type": "integer", "minimum": 0 },
+        "skipped_beyond_budget": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "status_counts": {
+      "type": "object",
+      "required": ["ok", "nonzero_exit", "terminated_by_signal", "timeout", "setup_error"],
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "snapshots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["t_s", "cases", "covered"],
+        "additionalProperties": false,
+        "properties": {
+          "t_s": { "type": "integer", "minimum": 0 },
+          "cases": { "type": "integer", "minimum": 0 },
+          "covered": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "flake": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["checked"],
+          "properties": { "checked": { "const": false } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["checked", "branches_differing", "only_in_first", "only_in_second"],
+          "additionalProperties": false,
+          "properties": {
+            "checked": { "const": true },
+            "branches_differing": { "type": "integer", "minimum": 0 },
+            "only_in_first": { "type": "integer", "minimum": 0 },
+            "only_in_second": { "type": "integer", "minimum": 0 }
+          }
+        }
+      ]
+    },
+    "runner": {
+      "type": "object",
+      "required": ["name", "version", "format", "workers"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "format": { "type": "string" },
+        "workers": { "type": "integer", "minimum": 1 },
+        "shard_mode": { "enum": ["process", "thread"] },
+        "lcov": { "type": ["string", "null"] },
+        "gcov": { "type": ["string", "null"] }
+      }
+    },
+    "local_zone": {
+      "type": "object",
+      "description": "The time zone of a process that has no TZ, which is what a case without TZ gets: offset in seconds east of UTC and abbreviation at the start of the replay, whether that is UTC, the zone /etc/localtime links to (no path), and the TZ of the runner's own environment.",
+      "required": ["offset_s", "abbreviation", "utc", "localtime_link", "tz_env"],
+      "additionalProperties": false,
+      "properties": {
+        "offset_s": { "type": ["integer", "null"] },
+        "abbreviation": { "type": ["string", "null"] },
+        "utc": { "type": ["boolean", "null"], "description": "Offset 0 now and on 1 January and 1 July 2026, and the abbreviation UTC; null if the zone could not be read." },
+        "localtime_link": { "type": ["string", "null"] },
+        "tz_env": { "type": ["string", "null"] },
+        "localtime_sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$", "description": "SHA-256 of the file /etc/localtime leads to (links followed), null if unreadable." },
+        "error": { "type": "string" }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What the runner told the operator on standard error before the replay (canonical-2026: a zone that is not UTC)."
+    },
+    "setup_error_example": { "type": ["string", "null"] },
+    "timing": {
+      "type": "object",
+      "properties": {
+        "replay_s": { "type": "number", "minimum": 0 },
+        "flake_s": { "type": "number", "minimum": 0 }
+      }
+    }
+  }
+}

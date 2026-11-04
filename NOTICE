@@ -1,0 +1,45 @@
+Agent Software Testing
+Copyright The Agent Software Testing authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party material
+--------------------
+
+The programs that Agent Software Testing measures are not part of this repository. Their source
+archives are fetched from the upstream locations named in programs/<id>/program.json and
+verified against the SHA-256 recorded there. Each program keeps its own licence:
+
+  bc           GPL-3.0-or-later
+  Confetti     MIT
+  diffutils    GPL-3.0-or-later
+  coreutils    GPL-3.0-or-later   (du, ls)
+  gawk         GPL-3.0-or-later
+  Gcal         GPL-3.0-or-later
+  grep         GPL-3.0-or-later
+  gzip         GPL-3.0-or-later
+  jq           MIT, with separately licensed bundled components
+  Krep         BSD-2-Clause
+  libmatheval  GPL-3.0-or-later
+  LibYAML      MIT
+  vorbis-tools GPL-2.0-or-later   (oggenc); its sanitiser build also fetches libogg
+               and libvorbis (BSD-3-Clause)
+  sed          GPL-3.0-or-later
+  WOFF2        MIT                (with Brotli, MIT, fetched for the build)
+  Expat        MIT                (xmlwf)
+  xorriso      GPL-3.0-or-later
+
+programs/jq/compat/jq-single-process.c is a small shim written for these builds. It is part
+of this repository and licensed under the Apache License, Version 2.0.
+
+Three build inputs (two patches for Krep and the standard-input driver for libmatheval) were
+written by the authors of ConcoLLMic and published in their artifact repository. They are
+included below environment/third_party/concollmic/ with the licences that apply to them: the
+ConcoLLMic dual licence (the GNU General Public License, version 3, for non-commercial
+purposes; the text is in COPYING there) and, for the Krep patches, the Krep licence
+(BSD-2-Clause). These files are not covered by the Apache License, Version 2.0 of the rest of
+this repository. The build script checks their pinned SHA-256 values before it uses them. See
+environment/third_party/concollmic/README.md and environment/README.md.
+
+environment/Dockerfile installs Ubuntu packages (GCC, LLVM/Clang, lcov and others) under
+their own licences. No image is distributed by this repository.

@@ -1,0 +1,4 @@
+{"id":"a1","t_ms":0,"argv":["LS12ZXJzaW9u"],"stdin":null,"files":[],"env":{},"cwd":"Lg==","timeout_ms":10000,"origin":"seed"}
+{"id":"a2","t_ms":2000,"argv":["LWM=","ZGF0YS50eHQ="],"stdin":null,"files":[{"path":"ZGF0YS50eHQ=","kind":"file","mode":"0644","blob":"sha256:efd6d3637be93bc909087d7dc2734a3dd20168ae1e817b0aef993e97e106045f"}],"env":{},"cwd":"Lg==","timeout_ms":10000,"origin":"llm"}
+{"id":"a3","t_ms":4000,"argv":["LWM5"],"stdin":"sha256:837d3376c7f90e2a3d99bd2ec5c52a273055ef5e17421532ca33c53bb0442005","files":[],"env":{"GZIP":"LTE="},"cwd":"Lg==","timeout_ms":10000,"origin":"llm"}
+{"id":"a4","t_ms":8000,"argv":["LWw=","bGluay5neg=="],"stdin":null,"files":[{"path":"ZGly","kind":"dir","mode":"0755"},{"path":"bGluay5neg==","kind":"symlink","target":"ZGlyL21pc3NpbmcuZ3o="}],"env":{},"cwd":"Lg==","timeout_ms":10000,"origin":"llm"}

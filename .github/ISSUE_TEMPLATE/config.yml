@@ -1,0 +1,12 @@
+# Issue chooser for the agent-software-testing repository.
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability (private)
+    url: https://github.com/agentic-prover/agent-software-testing/security/advisories/new
+    about: Sandbox escapes and vulnerabilities in the runner, validator, adapters or build scripts. Do not open a public issue for these. See SECURITY.md (https://github.com/agentic-prover/agent-software-testing/security/policy).
+  - name: Submit results for your tool
+    url: https://github.com/agentic-prover/agent-software-testing-results/issues/new/choose
+    about: Results are submitted in the agent-software-testing-results repository with the Submission form, not here.
+  - name: Report a bug found in one of the 18 programs (private)
+    url: https://github.com/agentic-prover/agent-software-testing-results/security/advisories/new
+    about: Crashes and sanitiser findings in the 18 programs are reported privately, never in an issue. See DISCLOSURE.md in agent-software-testing-results.

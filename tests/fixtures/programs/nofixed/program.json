@@ -1,0 +1,17 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "nofixed",
+  "name": "NoFixed",
+  "version": "1.0",
+  "source": {
+    "url": "https://example.invalid/nofixed-1.0.tar.gz",
+    "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "directory": "nofixed-1.0"
+  },
+  "build": {"configure": [], "notes": ""},
+  "binary": "bin/nofixed",
+  "branch_total": 100,
+  "fixed_track": null,
+  "inputs": ["argv", "files", "stdin"],
+  "status": "measured"
+}

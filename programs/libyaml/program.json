@@ -1,0 +1,28 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "libyaml",
+  "name": "LibYAML (run-parser-test-suite)",
+  "version": "0.2.5",
+  "source": {
+    "url": "https://github.com/yaml/libyaml/releases/download/0.2.5/yaml-0.2.5.tar.gz",
+    "sha256": "c642ae9b75fee120b2d96c712538bd2cf283228d2337df2cf2988e3c02678ef4",
+    "directory": "yaml-0.2.5"
+  },
+  "build": {
+    "configure": [
+      "--disable-shared",
+      "--enable-static"
+    ],
+    "notes": "Out-of-tree build with a static library. The default make target builds tests/run-parser-test-suite, which is the measured binary."
+  },
+  "binary": "obj-gcov/tests/run-parser-test-suite",
+  "branch_total": 4275,
+  "fixed_track": {
+    "argv_template": [],
+    "input_channel": "stdin"
+  },
+  "inputs": [
+    "stdin"
+  ],
+  "status": "measured"
+}

@@ -1,0 +1,108 @@
+# Builds the replay image (environment/Dockerfile, target "builds") and publishes it to GitHub Container Registry.
+# Started by hand only (Actions, "Build replay image", Run workflow). It prints the image name with its digest.
+# Put that line into .github/replay-pins.json of the results repository (field "image"), together with the commit of
+# this repository that the replay should use (field "runner_ref"). The replay workflow only uses images by digest.
+#
+# The package must be public so that the replay jobs can pull it without a secret. A package published from a public
+# repository with the source label below inherits its visibility; check it under the package's settings once.
+name: Build replay image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-replay-image
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Name the image
+        id: name
+        env:
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          owner=$(printf '%s' "$OWNER" | tr '[:upper:]' '[:lower:]')
+          echo "image=ghcr.io/${owner}/agent-software-testing-replay" >> "$GITHUB_OUTPUT"
+
+      - name: Free disk before the build
+        run: df -h / | tail -n 1
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Compiles the coverage and ASan+UBSan builds of all 18 programs. This is the long step.
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: environment/Dockerfile
+          target: builds
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: ${{ steps.name.outputs.image }}:build-${{ github.run_number }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Check the pushed image without network
+        env:
+          IMAGE: ${{ steps.name.outputs.image }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          set -eu
+          ref="${IMAGE}@${DIGEST}"
+          docker pull --quiet "$ref" >/dev/null
+          for dir in programs/*/; do
+            program=$(basename "$dir")
+            docker run --rm --network none --read-only "$ref" \
+              sh -c "test -d /opt/agent-software-testing/builds/$program/gcov && test -d /opt/agent-software-testing/builds/$program/asan-ubsan" \
+              || { echo "missing build for $program"; exit 1; }
+          done
+          docker run --rm --network none --read-only "$ref" \
+            python3 /opt/agent-software-testing/environment/verify_image.py >/dev/null
+          echo "all builds present, toolchain verified"
+
+      - name: Report the size and the line for the pins file
+        env:
+          IMAGE: ${{ steps.name.outputs.image }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          set -eu
+          ref="${IMAGE}@${DIGEST}"
+          bytes=$(docker image inspect "$ref" --format '{{.Size}}')
+          {
+            echo "## Replay image"
+            echo
+            echo "Unpacked size: $((bytes / 1048576)) MiB (the free runner has about 14 GB of disk)."
+            echo
+            echo "Put this into \`.github/replay-pins.json\` of the results repository as \`image\`:"
+            echo
+            echo '```'
+            echo "$ref"
+            echo '```'
+            echo
+            echo "Runner commit that built it: \`${GITHUB_SHA}\` (use it as \`runner_ref\` unless a later commit is wanted)."
+          } >> "$GITHUB_STEP_SUMMARY"
+          df -h / | tail -n 1

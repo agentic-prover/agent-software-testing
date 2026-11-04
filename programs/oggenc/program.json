@@ -1,0 +1,30 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "oggenc",
+  "name": "oggenc (vorbis-tools)",
+  "version": "1.4.3",
+  "source": {
+    "url": "https://github.com/xiph/vorbis-tools/archive/235540c05ad3f9cdc673ca09c237c9a9b5bda6eb.tar.gz",
+    "sha256": "2551491fa2d062ec1a8a3e45967c690f61346d276e3818fdfd8b092fc92a1f11",
+    "directory": "vorbis-tools-235540c05ad3f9cdc673ca09c237c9a9b5bda6eb"
+  },
+  "build": {
+    "configure": [
+      "--disable-nls"
+    ],
+    "notes": "In-tree build: the vorbis-tools source is extracted into obj-gcov, then ./autogen.sh and configure --disable-nls run there. The coverage build links the image's libogg and libvorbis, so the coverage scope is vorbis-tools only. The ASan+UBSan build instead builds libogg (commit 06a5e0262cdc) and libvorbis (commit e3c9861ff096) from pinned sources with the same sanitiser flags."
+  },
+  "binary": "obj-gcov/oggenc/oggenc",
+  "branch_total": 1138,
+  "fixed_track": {
+    "argv_template": [
+      "{input}"
+    ],
+    "input_channel": "file"
+  },
+  "inputs": [
+    "argv",
+    "files"
+  ],
+  "status": "measured"
+}

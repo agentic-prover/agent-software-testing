@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-software-testing/signature-counts@0.1",
+  "title": "Bug-signature counts (signatures-counts.json), the public output of the sanitiser pass",
+  "description": "Counts of distinct signatures by sanitiser and kind. Frames and inputs are not part of this document. A kind is one of the names listed here, or 'other': report text is never copied into this document.",
+  "type": "object",
+  "required": [
+    "schema",
+    "program",
+    "tool",
+    "repeat",
+    "signatures",
+    "by_sanitizer_and_kind",
+    "cases",
+    "status_counts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "agent-software-testing/signature-counts@0.1"
+    },
+    "program": {
+      "type": "string"
+    },
+    "tool": {
+      "type": "object"
+    },
+    "repeat": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "signatures": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "by_sanitizer_and_kind": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "asan": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "abrt",
+              "alloc-dealloc-mismatch",
+              "allocation-size-too-big",
+              "bad-free",
+              "bad-malloc-usable-size",
+              "bus",
+              "calloc-overflow",
+              "container-overflow",
+              "deadlysignal",
+              "double-free",
+              "dynamic-stack-buffer-overflow",
+              "failed-to-allocate",
+              "fpe",
+              "global-buffer-overflow",
+              "heap-buffer-overflow",
+              "heap-use-after-free",
+              "ill",
+              "invalid-aligned-alloc-alignment",
+              "invalid-allocation-alignment",
+              "invalid-pointer-pair",
+              "invalid-posix-memalign-alignment",
+              "negative-size-param",
+              "new-delete-type-mismatch",
+              "odr-violation",
+              "other",
+              "out-of-memory",
+              "param-overlap",
+              "pvalloc-overflow",
+              "reallocarray-overflow",
+              "segv",
+              "stack-buffer-overflow",
+              "stack-buffer-underflow",
+              "stack-overflow",
+              "stack-use-after-return",
+              "stack-use-after-scope",
+              "trap",
+              "unknown-crash",
+              "use-after-poison"
+            ]
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "ubsan": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "bad-downcast",
+              "bad-vptr",
+              "division-by-zero",
+              "float-cast-overflow",
+              "function-type-mismatch",
+              "implicit-conversion",
+              "index-out-of-bounds",
+              "insufficient-object-space",
+              "invalid-builtin",
+              "invalid-value-load",
+              "left-shift-negative",
+              "left-shift-overflow",
+              "misaligned-access",
+              "missing-return",
+              "negation-overflow",
+              "nonnull-argument",
+              "nonnull-return",
+              "null-pointer-use",
+              "other",
+              "pointer-overflow",
+              "shift-exponent",
+              "signed-integer-overflow",
+              "unreachable",
+              "unsigned-integer-overflow",
+              "vla-bound"
+            ]
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "cases": {
+      "type": "object",
+      "required": [
+        "replayed",
+        "with_reports",
+        "skipped_beyond_budget"
+      ],
+      "properties": {
+        "replayed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "with_reports": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped_beyond_budget": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "status_counts": {
+      "type": "object",
+      "required": [
+        "ok",
+        "nonzero_exit",
+        "terminated_by_signal",
+        "timeout",
+        "setup_error"
+      ],
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  }
+}

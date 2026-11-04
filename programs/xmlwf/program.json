@@ -1,0 +1,32 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "xmlwf",
+  "name": "xmlwf (Expat)",
+  "version": "2.8.2",
+  "source": {
+    "url": "https://github.com/libexpat/libexpat/releases/download/R_2_8_2/expat-2.8.2.tar.xz",
+    "sha256": "3ad89b8588e6644bd4e49981480d48b21289eebbcd4f0a1a4afb1c29f99b6ab4",
+    "directory": "expat-2.8.2"
+  },
+  "build": {
+    "configure": [
+      "--without-examples",
+      "--without-tests",
+      "--without-docbook",
+      "--disable-shared",
+      "--enable-static"
+    ],
+    "notes": "Out-of-tree Expat build with a static library; examples, tests and DocBook documentation disabled. The universe counts the eight branches that lib/xmlparse.c marks LCOV_EXCL_START/STOP (6,293, not 6,285): build.exclusion_markers is ignored, so lcov runs with --no-markers.",
+    "exclusion_markers": "ignored"
+  },
+  "binary": "obj-gcov/xmlwf/xmlwf",
+  "branch_total": 6293,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

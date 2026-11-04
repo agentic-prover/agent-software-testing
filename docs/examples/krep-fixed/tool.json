@@ -1,0 +1,28 @@
+{
+  "schema": "agent-software-testing/tool@0.1",
+  "tool": {
+    "name": "example-generator",
+    "version": "0.0.1",
+    "family": "other",
+    "model": null,
+    "config_sha256": null,
+    "url": null
+  },
+  "program": {
+    "id": "krep",
+    "source_sha256": "18298b91d2edd24f0e2e56a703c3fb372d218bfa63038b689f4b084bd8b1a87e"
+  },
+  "track": "fixed",
+  "repeat": 1,
+  "budget": {
+    "wall_s": 21600,
+    "cores": 1,
+    "notes": "toy example, not a real campaign"
+  },
+  "resources": {
+    "output_tokens": null,
+    "input_tokens": null,
+    "cpu_s": null
+  },
+  "notes": "three hand-written cases; exists to exercise the validator and the quick start"
+}

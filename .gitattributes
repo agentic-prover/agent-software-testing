@@ -1,0 +1,2 @@
+# Third-party build inputs are pinned by SHA-256: git must never normalise their line endings or white space.
+environment/third_party/** -text

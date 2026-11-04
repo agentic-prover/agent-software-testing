@@ -1,0 +1,27 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "diff",
+  "name": "GNU diff",
+  "version": "3.12",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/diffutils/diffutils-3.12.tar.xz",
+    "sha256": "7c8b7f9fc8609141fdea9cece85249d308624391ff61dedaf528fcb337727dfd",
+    "directory": "diffutils-3.12"
+  },
+  "build": {
+    "configure": [
+      "--disable-nls"
+    ],
+    "notes": "Out-of-tree build, native language support disabled. The measured binary is src/diff of GNU diffutils."
+  },
+  "binary": "obj-gcov/src/diff",
+  "branch_total": 4369,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

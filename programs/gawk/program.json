@@ -1,0 +1,48 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "gawk",
+  "name": "GNU Awk (gawk)",
+  "version": "5.4.1",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/gawk/gawk-5.4.1.tar.xz",
+    "sha256": "07f6f7342b7febe4313fc2c2542ad93d64fe20ad8717200109f105a826f5fd37",
+    "directory": "gawk-5.4.1"
+  },
+  "build": {
+    "configure": [
+      "--disable-nls",
+      "--disable-mpfr",
+      "--disable-extensions",
+      "--without-readline"
+    ],
+    "notes": "Out-of-tree build with native language support, MPFR, dynamic extensions and readline disabled. GCC records the generated parser sources (awkgram.c, awkgram.y, command.c, command.y) under obj-gcov, where they do not exist; build.stage_sources lists the copies that put them there, which the builder makes after the build and the runner repeats, so that the initial lcov capture prints no warning.",
+    "stage_sources": [
+      {
+        "source": "awkgram.c",
+        "recorded_path": "obj-gcov/awkgram.c"
+      },
+      {
+        "source": "awkgram.y",
+        "recorded_path": "obj-gcov/awkgram.y"
+      },
+      {
+        "source": "command.c",
+        "recorded_path": "obj-gcov/command.c"
+      },
+      {
+        "source": "command.y",
+        "recorded_path": "obj-gcov/command.y"
+      }
+    ]
+  },
+  "binary": "obj-gcov/gawk",
+  "branch_total": 20356,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}

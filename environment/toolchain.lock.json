@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "environment_id": "agent-software-testing-gcov",
+  "platform": "linux/amd64",
+  "status": "toolchain-verified",
+  "status_note": "Declared versions follow the toolchain used to measure the reference branch totals.",
+  "base_image": {
+    "reference": "ubuntu:jammy-20251001",
+    "digest": "sha256:09506232a8004baa32c47d68f1e5c307d648fdd59f5e7eaa42aaf87914100db3"
+  },
+  "ubuntu_snapshot": "20260622T070000Z",
+  "declared_versions": {
+    "os": "Ubuntu 22.04 (jammy)",
+    "glibc": "2.35",
+    "gcc": "11.4.0",
+    "gcov": "11.4.0",
+    "lcov": "1.14",
+    "clang": "15.0.7",
+    "python": "3.10.12"
+  },
+  "runtime_probe": {
+    "required_commands": [
+      "gcc",
+      "g++",
+      "gcov",
+      "lcov",
+      "make",
+      "patch",
+      "tar",
+      "strings",
+      "clang-15",
+      "clang++-15",
+      "llvm-symbolizer-15",
+      "python3"
+    ],
+    "require_matching_gcc_gcov_major": true
+  },
+  "expected_inventory": {
+    "dpkg_entries": null,
+    "dpkg_sha256": null,
+    "note": "Record both values from the first successful image build."
+  },
+  "reproducibility": {
+    "base_image": "pinned by digest in environment/Dockerfile and here (ubuntu:jammy-20251001 index digest); a newer jammy image does not work with the dated package snapshot",
+    "apt_installation": "dated Ubuntu snapshot over HTTPS with TLS verification; ca-certificates is bootstrapped from the base image's signed plain-HTTP archive sources, and TLS verification is never disabled"
+  }
+}

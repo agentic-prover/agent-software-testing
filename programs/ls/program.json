@@ -1,0 +1,32 @@
+{
+  "schema": "agent-software-testing/program@0.1",
+  "id": "ls",
+  "name": "GNU ls",
+  "version": "9.11",
+  "source": {
+    "url": "https://ftp.gnu.org/gnu/coreutils/coreutils-9.11.tar.xz",
+    "sha256": "394024eda0a5955217ceda9cd1201e65dc8fa3aa29c2951135a49521d57c3cc3",
+    "directory": "coreutils-9.11"
+  },
+  "build": {
+    "configure": [
+      "--disable-nls",
+      "--disable-libcap",
+      "--disable-acl",
+      "--disable-xattr",
+      "--without-selinux",
+      "--without-libgmp"
+    ],
+    "notes": "Out-of-tree GNU coreutils build with the optional capability, ACL, extended-attribute, SELinux and GMP integrations disabled. Shares its source archive with du."
+  },
+  "binary": "obj-gcov/src/ls",
+  "branch_total": 4441,
+  "fixed_track": null,
+  "inputs": [
+    "argv",
+    "files",
+    "stdin",
+    "env"
+  ],
+  "status": "open-track-only"
+}
