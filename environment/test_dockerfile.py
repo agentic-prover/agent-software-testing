@@ -29,6 +29,10 @@ def test_the_snapshot_is_reached_over_https_only() -> None:
     assert "http://snapshot.ubuntu.com" not in DOCKERFILE
 
 
+def test_a_missing_package_index_stops_the_build() -> None:
+    assert "--error-on=any update" in DOCKERFILE
+
+
 def test_the_base_image_is_pinned_by_its_recorded_digest() -> None:
     match = re.search(r"^ARG BASE_IMAGE=(\S+)$", DOCKERFILE, re.MULTILINE)
     assert match, "BASE_IMAGE must have a default"

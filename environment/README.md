@@ -56,7 +56,8 @@ TLS verification is never disabled. The base image has no certificate bundle, so
 apt checks against the signing keys that ship in the image, and install only
 `ca-certificates`; the sources are then pointed at the dated HTTPS snapshot. The snapshot's
 apt calls set `Acquire::Check-Valid-Until=false` on their command line (an old snapshot's
-indexes are past their Valid-Until date); nothing of that is written into the image.
+indexes are past their Valid-Until date); nothing of that is written into the image. They also
+retry downloads, and a package index that still cannot be fetched stops the build.
 
 ## Third-party build inputs
 

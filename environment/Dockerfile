@@ -45,7 +45,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # then are the sources pointed at the HTTPS snapshot, which verifies TLS from the first
 # request on. Snapshot indexes can be older than their Valid-Until date, so that check is
 # relaxed for the snapshot's apt calls only, on their command line, and is not left behind
-# in the image.
+# in the image. The snapshot service has outages, so its downloads are retried and a package
+# index that still cannot be fetched stops the build. Otherwise apt only warns and goes on
+# without that index, and the image could end up with other versions.
 RUN set -eux; \
     apt-get update; \
     apt-get -y --no-install-recommends install ca-certificates; \
@@ -53,8 +55,8 @@ RUN set -eux; \
       -e "s#http://archive.ubuntu.com/ubuntu/#https://snapshot.ubuntu.com/ubuntu/${UBUNTU_SNAPSHOT}/#g" \
       -e "s#http://security.ubuntu.com/ubuntu/#https://snapshot.ubuntu.com/ubuntu/${UBUNTU_SNAPSHOT}/#g" \
       /etc/apt/sources.list; \
-    apt-get -o Acquire::Check-Valid-Until=false update; \
-    apt-get -o Acquire::Check-Valid-Until=false -y --no-install-recommends install \
+    apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=20 --error-on=any update; \
+    apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=20 -y --no-install-recommends install \
       build-essential pkg-config xz-utils bzip2 curl patch file \
       autoconf automake libtool autopoint gettext texinfo bison flex \
       guile-3.0-dev libogg-dev libvorbis-dev \
