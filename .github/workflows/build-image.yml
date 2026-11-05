@@ -3,8 +3,8 @@
 # Put that line into .github/replay-pins.json of the results repository (field "image"), together with the commit of
 # this repository that the replay should use (field "runner_ref"). The replay workflow only uses images by digest.
 #
-# The package must be public so that the replay jobs can pull it without a secret. A package published from a public
-# repository with the source label below inherits its visibility; check it under the package's settings once.
+# The package must be public so that the replay jobs can pull it without a secret. A new package comes out private,
+# so make it public once under the package's settings.
 name: Build replay image
 
 on:
